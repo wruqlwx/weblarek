@@ -39,15 +39,13 @@ export class Buyer implements IBuyer {
             return false;
         }
 
-        //Проверка email
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!this.email || !emailRegex.test(this.email)) {
+        //Проверка email (только на пустое поле)
+        if (!this.email || this.email.trim().length === 0) {
             return false;
         }
 
-        //Проверка телефона (минимальная валидация)
-        const phoneRegex = /^\+?[\d\s\-\(\)]+$/;
-        if (!this.phone || !phoneRegex.test(this.phone) || this.phone.length < 5) {
+        //Проверка телефона (только на пустое поле)
+        if (!this.phone || this.phone.trim().length === 0) {
             return false;
         }
 

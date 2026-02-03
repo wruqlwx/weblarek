@@ -1,10 +1,11 @@
 import { IApi, ApiPostMethods } from '../../types';
+import { API_URL } from '../../utils/constants';
 
 export class Api implements IApi {
     readonly baseUrl: string;
     protected options: RequestInit;
 
-    constructor(baseUrl: string, options: RequestInit = {}) {
+    constructor(baseUrl: string = API_URL, options: RequestInit = {}) {
         this.baseUrl = baseUrl;
         this.options = {
             headers: {

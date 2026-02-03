@@ -29,8 +29,4 @@ export class Catalog {
         return this.selectedItem;
     }
 
-    //Дополнительный метод для сброса выбранного товара
-    clearSelectedItem(): void {
-        this.selectedItem = null;
-    }
 }

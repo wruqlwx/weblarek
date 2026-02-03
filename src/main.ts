@@ -15,7 +15,7 @@ async function main() {
     const catalog = new Catalog();
     const basket = new Basket();
     const buyer = new Buyer();
-    const api = new Api('https://larek-api.nomoreparties.co');
+    const api = new Api();
     const commerce = new Commerce(api);
     
     console.log('Созданы экземпляры: Catalog, Basket, Buyer, Api, Commerce');
@@ -32,9 +32,6 @@ async function main() {
     
     catalog.setSelectedItem(apiProducts.items[0]);
     console.log('Catalog: выбран товар:', catalog.getSelectedItem()?.title);
-    
-    catalog.clearSelectedItem();
-    console.log('Catalog: сброшен выбранный товар:', catalog.getSelectedItem() === null);
     
     //Тестирование Basket
     if (catalog.getItems().length >= 2) {
@@ -72,7 +69,7 @@ async function main() {
     try {
         console.log('Выполняем запрос к серверу через Commerce...');
         
-        const productsFromServer = await commerce.getProducts();
+        const productsFromServer = await commerce.getProducts(); //теперь в консоли нет ошибок получения данных с сервера
         
         //Сохраняем полученные данные в модель Catalog
         catalog.saveItems(productsFromServer);

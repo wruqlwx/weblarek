@@ -1,7 +1,7 @@
 import { IProduct, IBasket } from '../../types';
 
 export class Basket implements IBasket {
-    items: IProduct[] = [];
+    private items: IProduct[] = [];
 
     //Получение массива товаров в корзине
     getItems(): IProduct[] {

@@ -24,7 +24,6 @@ export interface IBuyer {
 }
 
 export interface IBasket {
-    items: IProduct[];
     add(item: IProduct): void;
     remove(id: string): void;
     clear(): void;
