@@ -98,3 +98,217 @@ Presenter - презентер содержит основную логику п
 `emit<T extends object>(event: string, data?: T): void` - инициализация события. При вызове события в метод передается название события и объект с данными, который будет использован как аргумент для вызова обработчика.  
 `trigger<T extends object>(event: string, context?: Partial<T>): (data: T) => void` - возвращает функцию, при вызове которой инициализируется требуемое в параметрах событие с передачей в него данных из второго параметра.
 
+### Данные
+В проекте используется 2 сущности, описывающие данные - товар и покупатель.
+
+#### Интерфейс Product 
+Product описывает товар: его уникальный id, описание, название, изображение в карточке, категорию и цену.
+```typescript
+interface IProduct {
+  id: string;
+  description: string;
+  image: string;
+  title: string;
+  category: string;
+  price: number | null;
+}
+```
+
+#### Интерфейс Buyer
+Buyer описывает данные покупателя: его выбор способа оплаты, адрес доставки, email и телефон. Содержит методы: сохранение данных в модели, получение всех данных покупателя, очистка данных покупателя, валидация данных.
+```typescript
+interface IBuyer {
+  payment: TPayment;
+  email: string;
+  phone: string;
+  address: string;
+}
+```
+
+#### Класс Catalog
+Класс для хранения товаров, которые можно купить в приложении.
+
+Конструктор:
+`constructor()`
+Поля класса:
+`private items: IProduct[] = []` - массив всех товаров в каталоге
+
+`private selectedItem: IProduct | null = null` - выбранный товар для детального просмотра
+
+Методы класса:
+`saveItems(items: IProduct[]): void` - сохранение массива товаров в каталог
+
+`getItems(): IProduct[]` - получение всех товаров из каталога
+
+`getItemById(id: string): IProduct | undefined` - поиск товара по его уникальному ID
+
+`setSelectedItem(item: IProduct): void` - сохранение товара для подробного отображения
+
+`getSelectedItem(): IProduct | null` - получение товара для подробного отображения
+
+`clearSelectedItem(): void` - сброс выбранного товара
+
+#### Класс Basket
+Класс для хранения товаров, выбранных покупателем для покупки.
+
+Конструктор:
+`constructor()`
+
+Поля класса:
+
+`items: IProduct[] = []` - массив товаров в корзине (публичное поле согласно интерфейсу)
+
+Методы класса:
+`add(item: IProduct): void` - добавление товара в корзину
+
+`remove(id: string): void` - удаление товара из корзины по его ID
+
+`clear(): void` - полная очистка корзины
+
+`getTotalPrice(): number` - расчет общей стоимости всех товаров в корзине
+
+`getItemsCount(): number` - получение количества товаров в корзине
+
+`hasItem(id: string): boolean` - проверка наличия товара в корзине по ID
+
+`getItems(): IProduct[]` - получение всех товаров из корзины
+
+#### Класс Buyer
+Класс Buyer нужен для хранения и валидации данных покупателя.
+
+Конструктор:
+`constructor()`
+
+Поля класса:
+`payment: TPayment = ''` - способ оплаты покупателя
+
+`email: string = ''` - email покупателя
+
+`phone: string = ''` - телефон покупателя
+
+`address: string = ''` - адрес доставки
+
+Методы класса:
+`saveData(data: Partial<IBuyer>): void` - сохранение данных покупателя (частичное обновление)
+
+`getData(): IBuyer` - получение всех данных покупателя
+
+`clear(): void` - очистка всех данных покупателя
+
+`validate(): boolean` - валидация данных покупателя:
+Проверка способа оплаты ('online' или 'cash')
+Проверка формата email
+Проверка наличия и формата телефона
+Проверка наличия адреса доставки
+
+### Слой коммуникации
+
+#### Класс Commerce
+
+Класс Commerce отвечает за взаимодействие с API сервера. 
+`constructor(api: IApi, baseUrl: string = 'http://localhost:3000/api/weblarek')`
+`api: IApi` - экземпляр класса для выполнения HTTP-запросов
+
+`baseUrl: string` - базовый URL API (по умолчанию соответствует локальному серверу разработки)
+
+Поля класса:
+`private api: IApi` - экземпляр HTTP-клиента
+
+`private baseUrl: string` - базовый URL API 
+
+Методы класса:
+`getProducts(): Promise<IProduct[]>` - получает каталог товаров с сервера.
+
+`getProduct(id: string): Promise<IProduct>` - получает информацию о конкретном товаре.
+
+`createOrder(orderData: IOrderRequest): Promise<IOrderResult>` - создает новый заказ на сервере.
+
+Приватные методы:
+`private validateOrderData(orderData: IOrderRequest): void` - валидация данных заказа
+
+`private isValidEmail(email: string): boolean` - проверка формата email
+
+`private handleApiError(error: unknown, defaultMessage?: string): Error` - обработка ошибок API
+
+### Типы данных
+#### Базовые типы 
+```typescript
+export type ApiPostMethods = 'POST' | 'PUT' | 'DELETE';
+export type TPayment = 'online' | 'cash' | '';
+```
+#### Все типы 
+Интерфейс для товара
+```typescript
+export interface IProduct {
+    id: string; //Уникальный идентификатор товара
+    description: string; //Подробное описание товара
+    image: string; //URL изображения товара
+    title: string; //Название товара
+    category: string; //Категория товара
+    price: number | null; //Цена товара (может быть null)
+}
+```
+
+Интерфейс для покупателя
+```typescript
+export interface IBuyer {
+    payment: TPayment; //Способ оплаты: 'online' или 'cash'
+    email: string; //Email покупателя
+    phone: string; //Телефон покупателя
+    address: string; //Адрес доставки
+}
+```
+
+Интерфейс для корзины
+```typescript
+export interface IBasket {
+    items: IProduct[]; //Массив товаров в корзине
+    add(item: IProduct): void; //Добавление товара в корзину
+    remove(id: string): void; //Удаление товара по ID
+    clear(): void; //Очистка корзины
+    getTotalPrice(): number; //Получение общей стоимости
+    getItemsCount(): number; //Получение количества товаров
+    hasItem(id: string): boolean; //Проверка наличия товара по ID
+    getItems(): IProduct[]; //Получение всех товаров
+}
+```
+
+Тип для запроса на создание заказа
+```typescript
+export interface IOrderRequest {
+    payment: TPayment; //Способ оплаты
+    email: string; //Email покупателя
+    phone: string; //Телефон покупателя
+    address: string; //Адрес доставки
+    total: number; //Общая сумма заказа
+    items: string[]; //Массив ID товаров в заказе
+}
+```
+
+Тип для ответа при создании заказа
+```typescript
+export interface IOrderResult {
+    id: string; //ID созданного заказа
+    total: number; //Сумма заказа
+}
+```
+
+Интерфейс для ответа API со списком элементов
+```typescript
+export interface IApiListResponse<T> {
+    total: number; //Общее количество элементов
+    items: T[]; //Массив элементов
+}
+```
+
+Интерфейс для ошибок API
+```typescript
+export interface IApiError {
+    error: string; //Сообщение об ошибке
+}
+```
+
+Универсальный тип ответа API
+```typescript
+export type ApiResponse<T> = T | IApiError;
+```
