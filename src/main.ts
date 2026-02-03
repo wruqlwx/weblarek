@@ -15,7 +15,7 @@ async function main() {
     const catalog = new Catalog();
     const basket = new Basket();
     const buyer = new Buyer();
-    const api = new Api('http://localhost:3000/api/weblarek');
+    const api = new Api('https://larek-api.nomoreparties.co');
     const commerce = new Commerce(api);
     
     console.log('Созданы экземпляры: Catalog, Basket, Buyer, Api, Commerce');

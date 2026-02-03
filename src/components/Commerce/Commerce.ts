@@ -4,7 +4,7 @@ export class Commerce {
     private api: IApi;
     private baseUrl: string;
 
-    constructor(api: IApi, baseUrl: string = 'http://localhost:3000/api/weblarek') {
+    constructor(api: IApi, baseUrl: string = 'https://larek-api.nomoreparties.co') {
         this.api = api;
         this.baseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
     }
