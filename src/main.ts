@@ -1,4 +1,3 @@
-// src/main.ts
 import './scss/styles.scss';
 import { Catalog } from './components/Models/Catalog';
 import { Basket } from './components/Models/Basket';
