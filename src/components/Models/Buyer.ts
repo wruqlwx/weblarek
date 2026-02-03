@@ -1,13 +1,45 @@
 import { IBuyer, TPayment } from '../../types';
 
 export class Buyer implements IBuyer {
-    payment: TPayment = '';
-    email: string = '';
-    phone: string = '';
-    address: string = '';
+    private payment: TPayment = '';
+    private email: string = '';
+    private phone: string = '';
+    private address: string = '';
+
+    getPayment(): TPayment {
+        return this.payment;
+    }
+    
+    setPayment(payment: TPayment): void {
+        this.payment = payment;
+    }
+    
+    getEmail(): string {
+        return this.email;
+    }
+    
+    setEmail(email: string): void {
+        this.email = email;
+    }
+    
+    getPhone(): string {
+        return this.phone;
+    }
+    
+    setPhone(phone: string): void {
+        this.phone = phone;
+    }
+    
+    getAddress(): string {
+        return this.address;
+    }
+    
+    setAddress(address: string): void {
+        this.address = address;
+    }
 
     //Сохранение данных в модели
-    saveData(data: Partial<IBuyer>): void {
+    saveData(data: Partial<{payment: TPayment; email: string; phone: string; address: string}>): void {
         if (data.payment !== undefined) this.payment = data.payment;
         if (data.email !== undefined) this.email = data.email;
         if (data.phone !== undefined) this.phone = data.phone;
@@ -15,7 +47,7 @@ export class Buyer implements IBuyer {
     }
 
     //Получение всех данных покупателя
-    getData(): IBuyer {
+    getData(): {payment: TPayment; email: string; phone: string; address: string} {
         return {
             payment: this.payment,
             email: this.email,
@@ -39,12 +71,12 @@ export class Buyer implements IBuyer {
             return false;
         }
 
-        //Проверка email (только на пустое поле)
+        //Проверка email
         if (!this.email || this.email.trim().length === 0) {
             return false;
         }
 
-        //Проверка телефона (только на пустое поле)
+        //Проверка телефона
         if (!this.phone || this.phone.trim().length === 0) {
             return false;
         }

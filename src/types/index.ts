@@ -17,10 +17,22 @@ export interface IProduct {
 }
 
 export interface IBuyer {
-  payment: TPayment;
-  email: string;
-  phone: string;
-  address: string;
+  getPayment(): TPayment;
+  setPayment(payment: TPayment): void;
+  
+  getEmail(): string;
+  setEmail(email: string): void;
+  
+  getPhone(): string;
+  setPhone(phone: string): void;
+  
+  getAddress(): string;
+  setAddress(address: string): void;
+  
+  saveData(data: Partial<{payment: TPayment; email: string; phone: string; address: string}>): void;
+  getData(): {payment: TPayment; email: string; phone: string; address: string};
+  clear(): void;
+  validate(): boolean;
 }
 
 export interface IBasket {
