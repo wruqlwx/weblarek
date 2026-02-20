@@ -312,3 +312,230 @@ export interface IApiError {
 ```typescript
 export type ApiResponse<T> = T | IApiError;
 ```
+
+## Слой представления (View)
+
+### Базовые классы представления
+
+#### Класс Card (абстрактный)
+Базовый класс для всех типов карточек товаров.
+
+Конструктор:
+`constructor(container: HTMLElement, events: IEvents)` - принимает корневой DOM-элемент и брокер событий
+
+Поля:
+`_title: HTMLElement | null` - элемент заголовка
+`_price: HTMLElement | null` - элемент цены
+`_image: HTMLImageElement | null` - элемент изображения
+`_category: HTMLElement | null` - элемент категории
+`_button: HTMLButtonElement | null` - кнопка действия
+`_description: HTMLElement | null` - элемент описания
+
+Сеттеры:
+`set id(value: string)` - устанавливает ID товара в data-атрибут
+`set title(value: string)` - устанавливает заголовок
+`set price(value: number | null)` - устанавливает цену (форматирует, обрабатывает null)
+`set category(value: string)` - устанавливает категорию с соответствующим CSS классом
+`set image(value: string)` - устанавливает изображение
+`set description(value: string)` - устанавливает описание
+`setButtonState(isInBasket: boolean)` - обновляет состояние кнопки ("Купить" / "Удалить из корзины")
+
+События:
+`card:select` - клик по карточке (открытие модального окна)
+`card:action` - клик по кнопке действия
+
+#### Класс Form (абстрактный)
+Базовый класс для всех форм приложения.
+
+Конструктор:
+`constructor(container: HTMLFormElement, events: IEvents)` - принимает форму и брокер событий
+
+Поля:
+`_submitButton: HTMLButtonElement | null` - кнопка отправки
+`_errors: HTMLElement | null` - контейнер для ошибок
+
+Сеттеры:
+`set valid(value: boolean)` - активирует/деактивирует кнопку отправки
+`set errors(value: string)` - устанавливает текст ошибки
+
+События:
+`[formName]:submit` - отправка формы
+`[formName]:change` - изменение поля формы
+
+### Компоненты представления
+
+#### Класс CatalogCard (наследует Card)
+Карточка товара для каталога на главной странице.
+
+#### Класс ModalCard (наследует Card)
+Карточка товара для отображения в модальном окне.
+
+Методы:
+`updateButtonState(isInBasket: boolean)` - обновляет состояние кнопки в модальном окне
+
+#### Класс BasketCard (наследует Card)
+Карточка товара для отображения в корзине.
+
+Поля:
+`_index: HTMLElement | null` - порядковый номер товара
+`_deleteButton: HTMLButtonElement | null` - кнопка удаления
+
+Сеттеры:
+`set index(value: number)` - устанавливает порядковый номер
+
+События:
+`basket:remove` - удаление товара из корзины
+
+#### Класс Modal
+Компонент модального окна.
+
+Конструктор:
+`constructor(container: HTMLElement, events: IEvents)` - принимает контейнер модального окна
+
+Поля:
+`_closeButton: HTMLButtonElement` - кнопка закрытия
+`_content: HTMLElement` - контейнер для контента
+
+Методы:
+`set content(value: HTMLElement)` - устанавливает контент
+`open()` - открывает модальное окно
+`close()` - закрывает модальное окно
+
+События:
+`modal:open` - открытие модального окна
+`modal:close` - закрытие модального окна
+
+#### Класс Page
+Компонент главной страницы.
+
+Конструктор:
+`constructor(container: HTMLElement, events: IEvents)` - принимает корневой элемент страницы
+
+Поля:
+`_catalog: HTMLElement` - контейнер каталога
+`_basketCounter: HTMLElement` - счетчик корзины
+`_basketButton: HTMLButtonElement | null` - кнопка открытия корзины
+
+Сеттеры:
+`set catalog(items: HTMLElement[])` - отрисовывает каталог
+`set counter(value: number)` - обновляет счетчик корзины
+
+События:
+`page:basket-open` - открытие корзины
+
+#### Класс Basket
+Компонент корзины.
+
+Конструктор:
+`constructor(container: HTMLElement, events: IEvents)` - принимает контейнер корзины
+
+Поля:
+`_list: HTMLElement | null` - список товаров
+`_total: HTMLElement | null` - общая стоимость
+`_button: HTMLButtonElement | null` - кнопка оформления
+
+Сеттеры:
+`set items(items: HTMLElement[])` - отрисовывает список товаров
+`set total(value: number)` - устанавливает общую стоимость
+`set buttonDisabled(value: boolean)` - активирует/деактивирует кнопку
+
+События:
+`basket:order` - оформление заказа
+
+#### Класс OrderForm (наследует Form)
+Форма первого шага оформления заказа (способ оплаты и адрес).
+
+Поля:
+`_paymentButtons: HTMLButtonElement[]` - кнопки выбора оплаты
+`_addressInput: HTMLInputElement | null` - поле ввода адреса
+
+Сеттеры:
+`set payment(value: TPayment)` - устанавливает выбранный способ оплаты
+`set address(value: string)` - устанавливает адрес
+
+События:
+`order:payment-change` - изменение способа оплаты
+`order:submit` - переход к следующему шагу
+
+#### Класс ContactsForm (наследует Form)
+Форма второго шага оформления заказа (email и телефон).
+
+Поля:
+`_emailInput: HTMLInputElement | null` - поле email
+`_phoneInput: HTMLInputElement | null` - поле телефона
+
+Сеттеры:
+`set email(value: string)` - устанавливает email
+`set phone(value: string)` - устанавливает телефон
+
+Геттеры:
+`get email(): string` - получает email
+`get phone(): string` - получает телефон
+
+События:
+`contacts:submit` - отправка формы (оплата)
+
+#### Класс Success
+Компонент сообщения об успешной оплате.
+
+Конструктор:
+`constructor(container: HTMLElement, events: IEvents)` - принимает контейнер
+
+Поля:
+`_message: HTMLElement | null` - элемент с сообщением
+`_button: HTMLButtonElement | null` - кнопка закрытия
+
+Сеттеры:
+`set total(value: number)` - устанавливает сумму в сообщении
+
+События:
+`success:close` - закрытие сообщения
+
+## События в приложении
+
+### События моделей данных
+| Событие | Описание | Данные |
+|---------|----------|--------|
+| `catalog:changed` | Изменение каталога товаров | `{ items: IProduct[] }` |
+| `basket:changed` | Изменение корзины | `{ items: IProduct[] }` |
+| `counter:changed` | Изменение счетчика корзины | `{ count: number }` |
+| `buyer:changed` | Изменение поля покупателя | `{ field: string, value: string }` |
+| `buyer:any-change` | Любое изменение данных покупателя | `IBuyer` |
+| `buyer:validation-error` | Ошибка валидации | `{ field: string, message: string }` |
+| `loading:changed` | Изменение состояния загрузки | `{ loading: boolean }` |
+
+### События представлений
+| Событие | Описание | Данные |
+|---------|----------|--------|
+| `card:select` | Выбор карточки товара | `{ id: string }` |
+| `card:action` | Клик по кнопке карточки | `{ id: string }` |
+| `basket:remove` | Удаление из корзины | `{ id: string }` |
+| `page:basket-open` | Открытие корзины | - |
+| `basket:order` | Оформление заказа | - |
+| `order:payment-change` | Изменение способа оплаты | `{ payment: TPayment }` |
+| `order:change` | Изменение поля в форме заказа | `{ field: string, value: string }` |
+| `order:submit` | Отправка формы заказа | - |
+| `contacts:change` | Изменение поля в форме контактов | `{ field: string, value: string }` |
+| `contacts:submit` | Отправка формы контактов | - |
+| `success:close` | Закрытие сообщения об успехе | - |
+| `modal:open` | Открытие модального окна | - |
+| `modal:close` | Закрытие модального окна | - |
+
+## Презентер (main.ts)
+
+Презентер реализован в файле `src/main.ts` и выполняет следующие задачи:
+
+1. Инициализация всех компонентов и моделей
+2. Подписка на события от моделей данных и представлений
+3. Обработка событий и координация работы модели и представления
+4. Загрузка начальных данных с сервера
+
+### Основные функции презентера:
+
+- Загружает каталог товаров при запуске приложения
+- При изменении каталога перерисовывает галерею на главной странице
+- При изменении корзины обновляет счетчик и список товаров
+- Обрабатывает открытие/закрытие модальных окон
+- Управляет валидацией форм и активацией кнопок
+- Отправляет данные заказа на сервер
+- Очищает корзину и данные покупателя после успешной оплаты

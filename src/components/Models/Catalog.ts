@@ -1,32 +1,33 @@
-import { IProduct } from "../../types";
+import { IEvents } from '../base/Events';
+import { IProduct } from '../../types';
 
-export class Catalog {
-    private items: IProduct[] = [];
-    private selectedItem: IProduct | null = null;
+export class CatalogModel {
+    protected _items: IProduct[] = [];
+    protected events: IEvents;
 
-    //Сохранение массива товаров
-    saveItems(items: IProduct[]): void {
-        this.items = items;
+    constructor(events: IEvents) {
+        this.events = events;
     }
 
-    //Получение массива товаров из модели
-    getItems(): IProduct[] {
-        return this.items;
+    set items(items: IProduct[]) {
+        this._items = items;
+        this.events.emit('catalog:changed', { items: this._items });
     }
 
-    //Получение одного товара по его id
-    getItemById(id: string): IProduct | undefined {
-        return this.items.find(item => item.id === id);
+    get items(): IProduct[] {
+        return this._items;
     }
 
-    //Сохранение товара для подробного отображения
-    setSelectedItem(item: IProduct): void {
-        this.selectedItem = item;
+    getProduct(id: string): IProduct | undefined {
+        return this._items.find(item => item.id === id);
     }
 
-    //Получение товара для подробного отображения
-    getSelectedItem(): IProduct | null {
-        return this.selectedItem;
+    updateProduct(id: string, updates: Partial<IProduct>): void {
+        const index = this._items.findIndex(item => item.id === id);
+        if (index !== -1) {
+            this._items[index] = { ...this._items[index], ...updates };
+            this.events.emit('catalog:changed', { items: this._items });
+            this.events.emit('catalog:product-changed', { id, product: this._items[index] });
+        }
     }
-
 }

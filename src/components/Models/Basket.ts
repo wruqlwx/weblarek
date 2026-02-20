@@ -1,45 +1,52 @@
-import { IProduct, IBasket } from '../../types';
+import { IEvents } from '../base/Events';
+import { IBasket, IProduct } from '../../types';
 
-export class Basket implements IBasket {
-    private items: IProduct[] = [];
+export class BasketModel implements IBasket {
+    protected _items: Map<string, IProduct> = new Map();
+    protected events: IEvents;
 
-    //Получение массива товаров в корзине
-    getItems(): IProduct[] {
-        return this.items;
+    constructor(events: IEvents) {
+        this.events = events;
     }
 
-    //Добавление товара в корзину
     add(item: IProduct): void {
-        this.items.push(item);
+        this._items.set(item.id, item);
+        this.events.emit('basket:changed', { items: this.getItems() });
     }
 
-    //Удаление товара из корзины по id
     remove(id: string): void {
-        const index = this.items.findIndex(item => item.id === id);
-        if (index !== -1) {
-            this.items.splice(index, 1);
-        }
+        this._items.delete(id);
+        this.events.emit('basket:changed', { items: this.getItems() });
     }
 
-    //Очистка корзины
     clear(): void {
-        this.items = [];
+        this._items.clear();
+        this.events.emit('basket:changed', { items: [] });
     }
 
-    //Получение стоимости всех товаров в корзине
     getTotalPrice(): number {
-        return this.items.reduce((total, item) => {
-            return total + (item.price || 0);
-        }, 0);
+        let total = 0;
+        this._items.forEach(item => {
+            if (item.price !== null) {
+                total += item.price;
+            }
+        });
+        return total;
     }
 
-    //Получение количества товаров в корзине
     getItemsCount(): number {
-        return this.items.length;
+        return this._items.size;
     }
 
-    //Проверка наличия товара в корзине по id
     hasItem(id: string): boolean {
-        return this.items.some(item => item.id === id);
+        return this._items.has(id);
+    }
+
+    getItems(): IProduct[] {
+        return Array.from(this._items.values());
+    }
+
+    getItemsIds(): string[] {
+        return Array.from(this._items.keys());
     }
 }

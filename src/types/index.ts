@@ -69,3 +69,17 @@ export interface IApiError {
 }
 
 export type ApiResponse<T> = T | IApiError;
+
+export interface IAppState {
+    catalog: IProduct[];
+    basket: string[]; 
+    order: IOrderForm | null;
+    loading: boolean;
+}
+
+export interface IOrderForm {
+    payment: TPayment;
+    address: string;
+    email: string;
+    phone: string;
+}
