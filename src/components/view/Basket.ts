@@ -10,34 +10,22 @@ export class Basket extends Component<IBasketView> {
     protected _list: HTMLElement | null;
     protected _total: HTMLElement | null;
     protected _button: HTMLButtonElement | null;
-    protected _container: HTMLElement;
 
     constructor(container: HTMLElement, protected events: IEvents) {
         let element: HTMLElement;
         
-        console.log('Basket container (template):', container);
-        
         if (container.tagName === 'TEMPLATE') {
             const template = container as HTMLTemplateElement;
-            element = template.content.firstElementChild?.cloneNode(true) as HTMLElement;
-            console.log('Cloned basket element:', element);
+            element = Component.cloneTemplate<HTMLElement>(template);
         } else {
             element = container;
         }
         
         super(element);
-        this._container = element;
         
-        this._list = this._container.querySelector('.basket__list');
-        this._total = this._container.querySelector('.basket__price');
-        this._button = this._container.querySelector('.basket__button');
-
-        console.log('Basket constructor:', {
-            container: this._container,
-            list: this._list,
-            total: this._total,
-            button: this._button
-        });
+        this._list = this.container.querySelector('.basket__list');
+        this._total = this.container.querySelector('.basket__price');
+        this._button = this.container.querySelector('.basket__button');
 
         if (this._button) {
             this._button.addEventListener('click', () => {
@@ -70,6 +58,6 @@ export class Basket extends Component<IBasketView> {
 
     render(data: IBasketView): HTMLElement {
         super.render(data);
-        return this._container;
+        return this.container;
     }
 }

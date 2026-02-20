@@ -9,6 +9,7 @@ export class AppState {
     protected _basket: BasketModel;
     protected _buyer: BuyerModel;
     protected _loading: boolean = false;
+    protected _selectedProductId: string | null = null; // <-- Добавить
     protected events: IEvents;
 
     constructor(events: IEvents) {
@@ -44,6 +45,14 @@ export class AppState {
 
     get loading(): boolean {
         return this._loading;
+    }
+
+    get selectedProductId(): string | null { // <-- Добавить геттер
+        return this._selectedProductId;
+    }
+
+    set selectedProductId(value: string | null) { // <-- Добавить сеттер
+        this._selectedProductId = value;
     }
 
     setCatalog(items: IProduct[]): void {
@@ -107,11 +116,8 @@ export class AppState {
     }
 
     validateOrderStep(): boolean {
-        return this._buyer.validateOrder();
-    }
-
-    isOrderStepValid(): boolean {
-        return this._buyer.isOrderValid();
+        const data = this._buyer.getData();
+        return !!(data.payment && data.address);
     }
 
     setLoading(loading: boolean): void {
@@ -122,6 +128,7 @@ export class AppState {
     reset(): void {
         this.clearBasket();
         this.clearBuyer();
+        this._selectedProductId = null; // <-- Добавить сброс
         this.events.emit('state:reset');
     }
 }

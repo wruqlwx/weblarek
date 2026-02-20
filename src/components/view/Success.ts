@@ -8,23 +8,21 @@ interface ISuccessView {
 export class Success extends Component<ISuccessView> {
     protected _message: HTMLElement | null;
     protected _button: HTMLButtonElement | null;
-    protected _container: HTMLElement;
 
     constructor(container: HTMLElement, protected events: IEvents) {
         let element: HTMLElement;
         
         if (container.tagName === 'TEMPLATE') {
             const template = container as HTMLTemplateElement;
-            element = template.content.firstElementChild?.cloneNode(true) as HTMLElement;
+            element = Component.cloneTemplate<HTMLElement>(template);
         } else {
             element = container;
         }
         
         super(element);
-        this._container = element;
         
-        this._message = this._container.querySelector('.order-success__description');
-        this._button = this._container.querySelector('.order-success__close');
+        this._message = this.container.querySelector('.order-success__description');
+        this._button = this.container.querySelector('.order-success__close');
 
         if (this._button) {
             this._button.addEventListener('click', () => {
@@ -41,6 +39,6 @@ export class Success extends Component<ISuccessView> {
 
     render(data: Partial<ISuccessView>): HTMLElement {
         super.render(data);
-        return this._container;
+        return this.container;
     }
 }
