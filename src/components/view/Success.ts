@@ -10,16 +10,7 @@ export class Success extends Component<ISuccessView> {
     protected _button: HTMLButtonElement | null;
 
     constructor(container: HTMLElement, protected events: IEvents) {
-        let element: HTMLElement;
-        
-        if (container.tagName === 'TEMPLATE') {
-            const template = container as HTMLTemplateElement;
-            element = Component.cloneTemplate<HTMLElement>(template);
-        } else {
-            element = container;
-        }
-        
-        super(element);
+        super(container);
         
         this._message = this.container.querySelector('.order-success__description');
         this._button = this.container.querySelector('.order-success__close');

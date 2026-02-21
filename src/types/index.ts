@@ -32,7 +32,7 @@ export interface IBuyer {
   saveData(data: Partial<{payment: TPayment; email: string; phone: string; address: string}>): void;
   getData(): {payment: TPayment; email: string; phone: string; address: string};
   clear(): void;
-  validate(): boolean;
+  validate(): { isValid: boolean; errors: Record<string, string> }; // Изменено
 }
 
 export interface IBasket {
@@ -69,13 +69,6 @@ export interface IApiError {
 }
 
 export type ApiResponse<T> = T | IApiError;
-
-export interface IAppState {
-    catalog: IProduct[];
-    basket: string[]; 
-    order: IOrderForm | null;
-    loading: boolean;
-}
 
 export interface IOrderForm {
     payment: TPayment;

@@ -12,16 +12,7 @@ export class Basket extends Component<IBasketView> {
     protected _button: HTMLButtonElement | null;
 
     constructor(container: HTMLElement, protected events: IEvents) {
-        let element: HTMLElement;
-        
-        if (container.tagName === 'TEMPLATE') {
-            const template = container as HTMLTemplateElement;
-            element = Component.cloneTemplate<HTMLElement>(template);
-        } else {
-            element = container;
-        }
-        
-        super(element);
+        super(container);
         
         this._list = this.container.querySelector('.basket__list');
         this._total = this.container.querySelector('.basket__price');

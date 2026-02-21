@@ -23,9 +23,4 @@ export abstract class Component<T> {
         Object.assign(this as object, data ?? {});
         return this.container;
     }
-
-    // Статический метод для клонирования шаблона
-    static cloneTemplate<T extends HTMLElement>(template: HTMLTemplateElement): T {
-        return template.content.firstElementChild?.cloneNode(true) as T;
-    }
 }

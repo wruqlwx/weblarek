@@ -4,7 +4,6 @@ import { EventEmitter } from './components/base/Events';
 import { Api } from './components/base/Api';
 import { Commerce } from './components/Commerce/Commerce';
 import { AppState } from './components/Models/AppState';
-import { Component } from './components/base/Component';
 import { Header } from './components/view/Header';
 import { Gallery } from './components/view/Gallery';
 import { Modal } from './components/view/Modal';
@@ -17,34 +16,43 @@ import { ModalCard } from './components/view/ModalCard';
 import { BasketCard } from './components/view/BasketCard';
 import { IProduct, IOrderRequest, TPayment } from './types';
 import { CDN_URL, API_URL } from './utils/constants';
+import { cloneTemplate } from './utils/utils';
 
-//1. ИНИЦИАЛИЗАЦИЯ БРОКЕРА СОБЫТИЙ
+// ==============================================
+// 1. ИНИЦИАЛИЗАЦИЯ БРОКЕРА СОБЫТИЙ
+// ==============================================
 const events = new EventEmitter();
 
-//2. ИНИЦИАЛИЗАЦИЯ API И БИЗНЕС-ЛОГИКИ
+// ==============================================
+// 2. ИНИЦИАЛИЗАЦИЯ API И БИЗНЕС-ЛОГИКИ
+// ==============================================
 const api = new Api(API_URL);
 const commerce = new Commerce(api);
 
-//3. ИНИЦИАЛИЗАЦИЯ МОДЕЛЕЙ ДАННЫХ
+// ==============================================
+// 3. ИНИЦИАЛИЗАЦИЯ МОДЕЛЕЙ ДАННЫХ
+// ==============================================
 const appState = new AppState(events);
 
-//4. ИНИЦИАЛИЗАЦИЯ КОМПОНЕНТОВ ПРЕДСТАВЛЕНИЯ
+// ==============================================
+// 4. ИНИЦИАЛИЗАЦИЯ КОМПОНЕНТОВ ПРЕДСТАВЛЕНИЯ
+// ==============================================
 
-//Поиск DOM-элементов
+// Поиск DOM-элементов
 const headerContainer = document.querySelector('.header') as HTMLElement;
 const galleryContainer = document.querySelector('.gallery') as HTMLElement;
 const modalContainer = document.querySelector('#modal-container') as HTMLElement;
 const basketContainer = document.querySelector('#basket') as HTMLElement;
-const orderContainer = document.querySelector('#order') as HTMLElement;
-const contactsContainer = document.querySelector('#contacts') as HTMLElement;
+const orderContainer = document.querySelector('#order') as HTMLFormElement;
+const contactsContainer = document.querySelector('#contacts') as HTMLFormElement;
 const successContainer = document.querySelector('#success') as HTMLElement;
 
-//Шаблоны
+// Шаблоны
 const catalogCardTemplate = document.querySelector('#card-catalog') as HTMLTemplateElement;
 const modalCardTemplate = document.querySelector('#card-preview') as HTMLTemplateElement;
 const basketCardTemplate = document.querySelector('#card-basket') as HTMLTemplateElement;
 
-//Проверка наличия всех необходимых элементов
+// Проверка наличия всех необходимых элементов
 if (!headerContainer || !galleryContainer || !modalContainer || !basketContainer || 
     !orderContainer || !contactsContainer || !successContainer || !catalogCardTemplate || 
     !modalCardTemplate || !basketCardTemplate) {
@@ -52,7 +60,7 @@ if (!headerContainer || !galleryContainer || !modalContainer || !basketContainer
     throw new Error('Ошибка инициализации приложения');
 }
 
-//Компоненты
+// Компоненты
 const header = new Header(headerContainer, events);
 const gallery = new Gallery(galleryContainer, events);
 const modal = new Modal(modalContainer, events);
@@ -61,9 +69,9 @@ const orderForm = new OrderForm(orderContainer, events);
 const contactsForm = new ContactsForm(contactsContainer, events);
 const success = new Success(successContainer, events);
 
-//Статичная карточка для модального окна (создается один раз)
+// Статичная карточка для модального окна
 const modalCard = new ModalCard(
-    Component.cloneTemplate<HTMLElement>(modalCardTemplate),
+    cloneTemplate(modalCardTemplate),
     events,
     () => {
         const selectedProduct = appState.selectedProductId ? 
@@ -74,11 +82,13 @@ const modalCard = new ModalCard(
     }
 );
 
-//5. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// ==============================================
+// 5. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// ==============================================
 
-//Функция для создания карточки каталога
+// Функция для создания карточки каталога
 const createCatalogCard = (product: IProduct): HTMLElement => {
-    const cardElement = Component.cloneTemplate<HTMLElement>(catalogCardTemplate);
+    const cardElement = cloneTemplate(catalogCardTemplate);
     const card = new CatalogCard(
         cardElement, 
         events,
@@ -90,9 +100,9 @@ const createCatalogCard = (product: IProduct): HTMLElement => {
     return card.render({ ...product, image: imageUrl });
 };
 
-//Функция для создания карточки в корзине
+// Функция для создания карточки в корзине
 const createBasketCard = (product: IProduct, index: number): HTMLElement => {
-    const cardElement = Component.cloneTemplate<HTMLElement>(basketCardTemplate);
+    const cardElement = cloneTemplate(basketCardTemplate);
     const card = new BasketCard(
         cardElement, 
         events,
@@ -102,7 +112,9 @@ const createBasketCard = (product: IProduct, index: number): HTMLElement => {
     return card.render(product, index);
 };
 
-//6. ОБРАБОТЧИКИ СОБЫТИЙ ОТ МОДЕЛЕЙ ДАННЫХ
+// ==============================================
+// 6. ОБРАБОТЧИКИ СОБЫТИЙ ОТ МОДЕЛЕЙ ДАННЫХ
+// ==============================================
 
 events.on('catalog:changed', () => {
     const catalogCards = appState.catalog.map(product => createCatalogCard(product));
@@ -112,7 +124,6 @@ events.on('catalog:changed', () => {
 events.on('basket:changed', () => {
     header.counter = appState.basketCount;
     
-    //Обновляем кнопку в модальной карточке, если она отображает выбранный товар
     const selectedProduct = appState.selectedProductId ? 
         appState.getProduct(appState.selectedProductId) : null;
     if (selectedProduct) {
@@ -126,6 +137,15 @@ events.on('buyer:any-change', () => {
     orderForm.address = data.address;
     contactsForm.email = data.email;
     contactsForm.phone = data.phone;
+    
+    // Валидация после обновления данных
+    const orderValidation = appState.validateOrderStep();
+    orderForm.valid = orderValidation.isValid;
+    orderForm.errors = orderValidation.isValid ? '' : Object.values(orderValidation.errors).join('; ');
+    
+    const contactsValidation = appState.validateOrder();
+    contactsForm.valid = contactsValidation.isValid;
+    contactsForm.errors = contactsValidation.isValid ? '' : Object.values(contactsValidation.errors).join('; ');
 });
 
 events.on('loading:changed', (data: { loading: boolean }) => {
@@ -138,12 +158,13 @@ events.on('state:reset', () => {
     contactsForm.render({ valid: false, errors: '', email: '', phone: '' });
 });
 
-//7. ОБРАБОТЧИКИ СОБЫТИЙ ОТ ПРЕДСТАВЛЕНИЙ
+// ==============================================
+// 7. ОБРАБОТЧИКИ СОБЫТИЙ ОТ ПРЕДСТАВЛЕНИЙ
+// ==============================================
 
 events.on('card:select', (data: { id: string }) => {
     const product = appState.getProduct(data.id);
     if (product) {
-        //Сохраняем ID выбранного товара в модели
         appState.selectedProductId = product.id;
         
         const imageUrl = `${CDN_URL}${product.image}`;
@@ -161,13 +182,9 @@ events.on('card:action', (data: { id: string }) => {
 
     if (appState.isInBasket(data.id)) {
         appState.removeFromBasket(data.id);
+        modal.close(); // Закрываем после удаления
     } else {
         appState.addToBasket(product);
-    }
-    
-    //Закрываем модальное окно после удаления
-    if (appState.isInBasket(data.id) === false) {
-        modal.close();
     }
 });
 
@@ -176,7 +193,6 @@ events.on('basket:remove', (data: { id: string }) => {
 });
 
 events.on('header:basket-open', () => {
-    //Обновляем содержимое корзины перед открытием
     const basketCards = appState.basketItems.map((product, index) => 
         createBasketCard(product, index + 1)
     );
@@ -194,11 +210,13 @@ events.on('basket:order', () => {
     if (appState.basketItems.length === 0) return;
     
     const buyerData = appState.buyerData;
+    const validation = appState.validateOrderStep();
+    
     const formElement = orderForm.render({
         payment: buyerData.payment,
         address: buyerData.address,
-        valid: false,
-        errors: ''
+        valid: validation.isValid,
+        errors: validation.isValid ? '' : Object.values(validation.errors).join('; ')
     });
     
     modal.content = formElement;
@@ -209,24 +227,21 @@ events.on('order:change', (data: { field: string; value: string }) => {
     if (data.field === 'address') {
         appState.setAddress(data.value);
     }
-    
-    const isValid = appState.validateOrderStep();
-    orderForm.valid = isValid;
 });
 
 events.on('order:payment-change', (data: { payment: TPayment }) => {
     appState.setPayment(data.payment);
-    const isValid = appState.validateOrderStep();
-    orderForm.valid = isValid;
 });
 
 events.on('order:submit', () => {
-    if (appState.validateOrderStep()) {
+    const validation = appState.validateOrderStep();
+    if (validation.isValid) {
+        const contactsValidation = appState.validateOrder();
         const formElement = contactsForm.render({
             email: appState.buyerData.email,
             phone: appState.buyerData.phone,
-            valid: false,
-            errors: ''
+            valid: contactsValidation.isValid,
+            errors: contactsValidation.isValid ? '' : Object.values(contactsValidation.errors).join('; ')
         });
         modal.content = formElement;
     }
@@ -238,37 +253,13 @@ events.on('contacts:change', (data: { field: string; value: string }) => {
     } else if (data.field === 'phone') {
         appState.setPhone(data.value);
     }
-    
-    //Используем метод validate из модели
-    const isValid = appState.validateOrder();
-    contactsForm.valid = isValid;
-    
-    //Показываем ошибки из модели
-    if (!isValid) {
-        const data = appState.buyerData;
-        if (!data.email && !data.phone) {
-            contactsForm.errors = 'Укажите email и телефон';
-        } else if (!data.email) {
-            contactsForm.errors = 'Укажите email';
-        } else if (!data.phone) {
-            contactsForm.errors = 'Укажите телефон';
-        }
-    } else {
-        contactsForm.errors = '';
-    }
 });
 
 events.on('contacts:submit', async () => {
-    if (!appState.validateOrder()) {
-        const data = appState.buyerData;
-        if (!data.email && !data.phone) {
-            contactsForm.errors = 'Укажите email и телефон';
-        } else if (!data.email) {
-            contactsForm.errors = 'Укажите email';
-        } else if (!data.phone) {
-            contactsForm.errors = 'Укажите телефон';
-        }
+    const validation = appState.validateOrder();
+    if (!validation.isValid) {
         contactsForm.valid = false;
+        contactsForm.errors = Object.values(validation.errors).join('; ');
         return;
     }
 
@@ -308,7 +299,9 @@ events.on('modal:close', () => {
     contactsForm.render({ valid: false, errors: '', email: '', phone: '' });
 });
 
-//8. ЗАГРУЗКА НАЧАЛЬНЫХ ДАННЫХ
+// ==============================================
+// 8. ЗАГРУЗКА НАЧАЛЬНЫХ ДАННЫХ
+// ==============================================
 (async () => {
     try {
         appState.setLoading(true);

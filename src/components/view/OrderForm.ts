@@ -1,5 +1,4 @@
 import { Form } from './Form';
-import { Component } from '../base/Component';
 import { IEvents } from '../base/Events';
 import { TPayment } from '../../types';
 
@@ -12,17 +11,8 @@ export class OrderForm extends Form<IOrderForm> {
     protected _paymentButtons: HTMLButtonElement[];
     protected _addressInput: HTMLInputElement | null;
 
-    constructor(container: HTMLElement, protected events: IEvents) {
-        let element: HTMLFormElement;
-        
-        if (container.tagName === 'TEMPLATE') {
-            const template = container as HTMLTemplateElement;
-            element = Component.cloneTemplate<HTMLFormElement>(template);
-        } else {
-            element = container as HTMLFormElement;
-        }
-        
-        super(element, events);
+    constructor(container: HTMLFormElement, protected events: IEvents) {
+        super(container, events);
         
         this._paymentButtons = Array.from(this.container.querySelectorAll('.button_alt'));
         this._addressInput = this.container.querySelector('[name="address"]');

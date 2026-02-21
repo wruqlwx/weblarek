@@ -5,22 +5,18 @@ import { IProduct } from '../../types';
 export class BasketCard extends Card {
     protected _index: HTMLElement | null;
     protected _deleteButton: HTMLButtonElement | null;
-    protected _title: HTMLElement | null;
-    protected _price: HTMLElement | null;
 
     constructor(
         container: HTMLElement, 
         events: IEvents,
-        onDelete?: () => void
+        onDelete: () => void
     ) {
         super(container, events);
         
         this._index = container.querySelector('.basket__item-index');
         this._deleteButton = container.querySelector('.basket__item-delete');
-        this._title = container.querySelector('.card__title');
-        this._price = container.querySelector('.card__price');
 
-        if (this._deleteButton && onDelete) {
+        if (this._deleteButton) {
             this._deleteButton.addEventListener('click', (evt) => {
                 evt.stopPropagation();
                 onDelete();
@@ -31,22 +27,6 @@ export class BasketCard extends Card {
     set index(value: number) {
         if (this._index) {
             this._index.textContent = value.toString();
-        }
-    }
-
-    set title(value: string) {
-        if (this._title) {
-            this._title.textContent = value;
-        }
-    }
-
-    set price(value: number | null) {
-        if (this._price) {
-            if (value === null) {
-                this._price.textContent = 'Бесценно';
-            } else {
-                this._price.textContent = `${value} синапсов`;
-            }
         }
     }
 

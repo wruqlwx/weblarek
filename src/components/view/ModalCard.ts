@@ -1,17 +1,27 @@
-import { ProductCard } from './ProductCard';
+import { BaseProductCard } from './BaseProductCard';
 import { IEvents } from '../base/Events';
 import { IProduct } from '../../types';
 
-export class ModalCard extends ProductCard {
+export class ModalCard extends BaseProductCard {
     protected _description: HTMLElement | null;
+    protected _button: HTMLButtonElement | null;
 
     constructor(
         container: HTMLElement, 
         events: IEvents,
-        onAction?: () => void
+        onAction: () => void
     ) {
-        super(container, events, undefined, onAction);
+        super(container, events);
+        
         this._description = container.querySelector('.card__text');
+        this._button = container.querySelector('.card__button');
+
+        if (this._button) {
+            this._button.addEventListener('click', (evt) => {
+                evt.stopPropagation();
+                onAction();
+            });
+        }
     }
 
     set description(value: string) {
@@ -20,8 +30,23 @@ export class ModalCard extends ProductCard {
         }
     }
 
+    setButtonState(isInBasket: boolean) {
+        if (this._button && !this._button.disabled) {
+            this._button.textContent = isInBasket ? 'Удалить из корзины' : 'Купить';
+        }
+    }
+
+    // Добавляем метод updateButtonState для совместимости
     updateButtonState(isInBasket: boolean) {
         this.setButtonState(isInBasket);
+    }
+
+    set price(value: number | null) {
+        super.price = value;
+        if (this._button && value === null) {
+            this._button.disabled = true;
+            this._button.textContent = 'Недоступно';
+        }
     }
 
     render(data: IProduct): HTMLElement {
