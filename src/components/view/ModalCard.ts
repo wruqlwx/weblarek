@@ -36,7 +36,6 @@ export class ModalCard extends BaseProductCard {
         }
     }
 
-    // Добавляем метод updateButtonState для совместимости
     updateButtonState(isInBasket: boolean) {
         this.setButtonState(isInBasket);
     }

@@ -81,28 +81,57 @@ export class BuyerModel implements IBuyer {
         this.events.emit('buyer:any-change', this.getData());
     }
 
-    // Валидация данных покупателя (простая проверка на заполненность)
-    validate(): boolean {
+    // Валидация данных покупателя с возвратом объекта
+    validate(): { isValid: boolean; errors: Record<string, string> } {
+        const errors: Record<string, string> = {};
+        
         // Проверка способа оплаты
-        if (!this.payment || (this.payment !== 'online' && this.payment !== 'cash')) {
-            return false;
+        if (!this.payment) {
+            errors.payment = 'Выберите способ оплаты';
+        } else if (this.payment !== 'online' && this.payment !== 'cash') {
+            errors.payment = 'Выберите корректный способ оплаты';
         }
 
         // Проверка адреса
         if (!this.address || this.address.trim().length === 0) {
-            return false;
+            errors.address = 'Укажите адрес доставки';
         }
 
         // Проверка email
         if (!this.email || this.email.trim().length === 0) {
-            return false;
+            errors.email = 'Укажите email';
         }
 
         // Проверка телефона
         if (!this.phone || this.phone.trim().length === 0) {
-            return false;
+            errors.phone = 'Укажите телефон';
         }
 
-        return true;
+        return {
+            isValid: Object.keys(errors).length === 0,
+            errors
+        };
+    }
+
+    // Валидация только первого шага
+    validateOrderStep(): { isValid: boolean; errors: Record<string, string> } {
+        const errors: Record<string, string> = {};
+        
+        // Проверка способа оплаты
+        if (!this.payment) {
+            errors.payment = 'Выберите способ оплаты';
+        } else if (this.payment !== 'online' && this.payment !== 'cash') {
+            errors.payment = 'Выберите корректный способ оплаты';
+        }
+
+        // Проверка адреса
+        if (!this.address || this.address.trim().length === 0) {
+            errors.address = 'Укажите адрес доставки';
+        }
+
+        return {
+            isValid: Object.keys(errors).length === 0,
+            errors
+        };
     }
 }

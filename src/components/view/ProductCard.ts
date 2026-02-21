@@ -9,7 +9,7 @@ export abstract class ProductCard extends Card {
     protected _image: HTMLImageElement | null;
     protected _category: HTMLElement | null;
     protected _button: HTMLButtonElement | null;
-    protected _id: string = ''; // Инициализируем пустой строкой
+    protected _id: string = '';
 
     constructor(
         container: HTMLElement, 

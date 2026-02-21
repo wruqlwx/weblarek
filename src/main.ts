@@ -18,25 +18,17 @@ import { IProduct, IOrderRequest, TPayment } from './types';
 import { CDN_URL, API_URL } from './utils/constants';
 import { cloneTemplate } from './utils/utils';
 
-// ==============================================
 // 1. ИНИЦИАЛИЗАЦИЯ БРОКЕРА СОБЫТИЙ
-// ==============================================
 const events = new EventEmitter();
 
-// ==============================================
 // 2. ИНИЦИАЛИЗАЦИЯ API И БИЗНЕС-ЛОГИКИ
-// ==============================================
 const api = new Api(API_URL);
 const commerce = new Commerce(api);
 
-// ==============================================
 // 3. ИНИЦИАЛИЗАЦИЯ МОДЕЛЕЙ ДАННЫХ
-// ==============================================
 const appState = new AppState(events);
 
-// ==============================================
 // 4. ИНИЦИАЛИЗАЦИЯ КОМПОНЕНТОВ ПРЕДСТАВЛЕНИЯ
-// ==============================================
 
 // Поиск DOM-элементов
 const headerContainer = document.querySelector('.header') as HTMLElement;
@@ -82,9 +74,7 @@ const modalCard = new ModalCard(
     }
 );
 
-// ==============================================
 // 5. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-// ==============================================
 
 // Функция для создания карточки каталога
 const createCatalogCard = (product: IProduct): HTMLElement => {
@@ -112,9 +102,7 @@ const createBasketCard = (product: IProduct, index: number): HTMLElement => {
     return card.render(product, index);
 };
 
-// ==============================================
 // 6. ОБРАБОТЧИКИ СОБЫТИЙ ОТ МОДЕЛЕЙ ДАННЫХ
-// ==============================================
 
 events.on('catalog:changed', () => {
     const catalogCards = appState.catalog.map(product => createCatalogCard(product));
@@ -158,9 +146,7 @@ events.on('state:reset', () => {
     contactsForm.render({ valid: false, errors: '', email: '', phone: '' });
 });
 
-// ==============================================
 // 7. ОБРАБОТЧИКИ СОБЫТИЙ ОТ ПРЕДСТАВЛЕНИЙ
-// ==============================================
 
 events.on('card:select', (data: { id: string }) => {
     const product = appState.getProduct(data.id);
@@ -299,9 +285,7 @@ events.on('modal:close', () => {
     contactsForm.render({ valid: false, errors: '', email: '', phone: '' });
 });
 
-// ==============================================
 // 8. ЗАГРУЗКА НАЧАЛЬНЫХ ДАННЫХ
-// ==============================================
 (async () => {
     try {
         appState.setLoading(true);
